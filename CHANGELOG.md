@@ -2,6 +2,12 @@
 
 [//]: # 'Note that version headers need to start with "## " characters to be picked up by some automated scripts'
 
+## 5.92.0
+
+### Changes
+
+- Added an optional `spine` resource in `ui-settings.json` to load [sg-urban-spine](https://github.com/tetratorus/sg-urban-spine) Gold layers from `spine serve` (OGC API Features) via `spine-collection` sources, with a spine scenario selector in the map ribbon
+
 ## 5.91.0
 
 ### Changes

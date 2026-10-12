@@ -71,6 +71,9 @@ Note that resources are optional and their configuration options can differ from
 - Scenario: Enables scenario selection in the `map` page
   - `url`: This is a required field that specifies the URL from which the scenarios and their settings can be retrieved. In this example, the URL points to a stack deployed on theworldavatar.io platform.
   - `data`: This required field indicates the target dataset that should be accessible to the user from the central stack. In the given example, the data field is set to "water", indicating that the scenario contains information only on water assets and not power nor telecoms etc.
+- Spine: Enables [sg-urban-spine](https://github.com/tetratorus/sg-urban-spine) Gold layers and a spine scenario selector in the ribbon of the `map` page. Gold layers are read from `spine serve` (OGC API Features) and never from the models directly.
+  - `url`: This is a required field that specifies the base URL of `spine serve` or of the Viz-Backend-Agent `/spine` proxy, e.g. `https://example.org/vis-backend-agent/spine`. Scenarios are listed from `{url}/scenarios`.
+  - Any source in the map data settings with a `spine-collection` field (e.g. `"spine-collection": "gold.example.plot_capacity.plot_capacity"`) is loaded as a `geojson` source from `{url}/collections/{spine-collection}/items?scenario={selected scenario}`. An optional `spine-limit` caps the number of features. All other sources, including KG-backed layers, are unaffected.
 - Registry: Activate the `registry` page based on the backend resource. The registry page provides a table for viewing all records within a contractual lifecycle as well as in general, as well as pages to add, delete, edit, and view these records individually using a form UI. Note that this will require at least one of the `data` or `paths` property to be valid.
   - `data`: OPTIONAL: The entity of interest that acts as the first landing page for the contractual registry. This should be `contract` at the moment.
   - `settings`: OPTIONAL: Name of the table settings JSON file in `config/` (for example `table-column-settings.json`) to configure default registry table columns, widths, visibility, etc. .
@@ -181,6 +184,9 @@ Below is an example of the contents for a valid `ui-settings.json` file with add
     "scenario": {
       "url": "https://theworldavatar.io/demos/credo-ofwat/central/CentralStackAgent", // Edit scenario url here
       "data": "water" // Edit scenario target dataset here
+    },
+    "spine": {
+      "url": "https://example.org/vis-backend-agent/spine" // Edit spine serve or proxy url here
     }
   }
 }

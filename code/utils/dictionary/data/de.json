@@ -145,6 +145,7 @@
       "terrain": "3D-Gelände umschalten",
       "fullscreen": "Vollbildmodus umschalten",
       "selectScenario": "Anderes Szenario auswählen",
+      "selectSpineScenario": "Spine-Szenario auswählen",
       "collapsePanel": "Panel zusammenklappen",
       "expandPanel": "Panel erweitern"
     }
