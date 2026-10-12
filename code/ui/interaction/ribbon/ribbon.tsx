@@ -8,6 +8,7 @@ import styles from './ribbon.module.css';
 
 import { addItem, selectItem } from '@/state/context-menu-slice';
 import { getScenarioName, getScenarioType } from '@/state/map-feature-slice';
+import { getOption } from '@/state/ribbon-component-slice';
 import { Dictionary } from '@/types/dictionary';
 import { ImageryOption, MapSettings, ContextItemMap } from '@/types/settings';
 import IconComponent from '@/ui/graphic/icon/icon';
@@ -23,12 +24,13 @@ import {
   togglePlacenames
 } from '@/ui/map/map-helper';
 import { closeFullscreen, openFullscreen } from '@/utils/client-utils';
+import { SPINE_BASELINE_SCENARIO, SPINE_SCENARIO_OPTION_ID } from '@/utils/spine';
 import { useDictionary } from '@/hooks/useDictionary';
 import { scenarioTypeIcon } from '../modal/scenario';
 import RibbonComponentClick from './components/ribbon-component-click';
 import RibbonComponentOptions from './components/ribbon-component-options';
 import RibbonComponentToggle from './components/ribbon-component-toggle';
-import { Image as ImageIcon, LocateFixed, Maximize2, Palette, Shapes } from "lucide-react";
+import { GitBranch, Image as ImageIcon, LocateFixed, Maximize2, Palette, Shapes } from "lucide-react";
 
 // Type definition for Ribbon parameters
 export interface RibbonProps {
@@ -37,6 +39,7 @@ export interface RibbonProps {
   mapSettings: MapSettings,
   hasScenario: boolean,
   toggleScenarioSelection: React.Dispatch<React.SetStateAction<boolean>>;
+  spineScenarios?: string[];
 }
 
 
@@ -68,6 +71,8 @@ export default function Ribbon(props: Readonly<RibbonProps>) {
 
   const currentScenarioName = useSelector(getScenarioName);
   const currentScenarioType = useSelector(getScenarioType);
+  const spineScenarioOption = useSelector(getOption(SPINE_SCENARIO_OPTION_ID));
+  const currentSpineScenario: string = (spineScenarioOption?.selection as string) ?? SPINE_BASELINE_SCENARIO;
 
   // State for map configuration settings
   const dispatch = useDispatch();
@@ -139,6 +144,18 @@ export default function Ribbon(props: Readonly<RibbonProps>) {
           }}
         />
         <hr className="self-stretch h-auto border-r border-border" />
+        {props.spineScenarios?.length > 0 &&
+          <RibbonComponentOptions
+            key="spine-scenario" id={SPINE_SCENARIO_OPTION_ID}
+            icon={GitBranch}
+            text={currentSpineScenario}
+            tooltip={dict.map.tooltip.selectSpineScenario}
+            initialOption={SPINE_BASELINE_SCENARIO}
+            iconClickable={false}
+            options={props.spineScenarios}
+            action={() => { }}
+          />
+        }
         {currentScenarioName &&
           <RibbonComponentToggle
             key="scenario" id="scenario"

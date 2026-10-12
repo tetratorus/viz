@@ -145,6 +145,7 @@
       "terrain": "Toggle 3D terrain",
       "fullscreen": "Toggle fullscreen mode",
       "selectScenario": "Select another scenario",
+      "selectSpineScenario": "Select spine scenario",
       "collapsePanel": "Collapse panel",
       "expandPanel": "Expand panel"
     }

@@ -13,6 +13,7 @@ export const dynamic = "force-dynamic";
 const uiSettings: UISettings = SettingsStore.getUISettings();
 const scenarioUrl = uiSettings.resources?.scenario?.url;
 const scenarioDataset = uiSettings.resources?.scenario?.data;
+const spineUrl = uiSettings.resources?.spine?.url;
 const scenarioResource: UISettings["resources"]["scenario"] | undefined =
   uiSettings.resources?.scenario;
 const mapModule: UISettings["modules"]["map"] = uiSettings.modules.map;
@@ -63,6 +64,7 @@ export default async function MapPage() {
         mapSettings={SettingsStore.getMapSettings()}
         data={SettingsStore.getMapDataSettings()}
         scenarios={scenarios}
+        spineURL={spineUrl}
       />
     );
   } else {

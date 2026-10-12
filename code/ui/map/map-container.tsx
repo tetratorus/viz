@@ -7,6 +7,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import { DataStore } from "@/io/data/data-store";
+import { getOption } from "@/state/ribbon-component-slice";
 import { selectDimensionSliderValue } from "@/state/dimension-slider-slice";
 import {
   getFilterFeatureIris,
@@ -17,6 +18,7 @@ import {
   setFilterLayerIds,
   setFilterTimes,
 } from "@/state/map-feature-slice";
+import { JsonObject } from "@/types/json";
 import { ScenarioDefinition } from "@/types/scenario";
 import { CameraPosition, ImageryOption, MapSettings } from "@/types/settings";
 import ScenarioModal from "@/ui/interaction/modal/scenario";
@@ -32,6 +34,12 @@ import {
 import MapboxMapComponent from "@/ui/map/mapbox/mapbox-container";
 import { parseMapDataSettings } from "@/utils/client-utils";
 import { useScenarioDimensionsService } from "@/utils/data-services";
+import {
+  getSpineScenarios,
+  resolveSpineSources,
+  SPINE_BASELINE_SCENARIO,
+  SPINE_SCENARIO_OPTION_ID,
+} from "@/utils/spine";
 import { MapSettingsProvider } from "./mapbox/map-settings-context";
 
 // Type definition of incoming properties
@@ -41,6 +49,7 @@ interface MapContainerProps {
   mapSettings: MapSettings;
   data: string;
   scenarios: ScenarioDefinition[];
+  spineURL?: string;
 }
 
 /**
@@ -62,6 +71,10 @@ export default function MapContainer(props: MapContainerProps) {
   const filterLayerIds: string[] = useSelector(getFilterLayerIds);
   const filterFeatureIris: string[] = useSelector(getFilterFeatureIris);
   const filterTimes: number[] = useSelector(getFilterTimes);
+  const [spineScenarios, setSpineScenarios] = useState<string[]>([]);
+  const spineScenarioOption = useSelector(getOption(SPINE_SCENARIO_OPTION_ID));
+  const spineScenario: string =
+    (spineScenarioOption?.selection as string) ?? SPINE_BASELINE_SCENARIO;
 
   // Memoizes parsing of settings only once initially to prevent any unintended calls
   const mapSettings: MapSettings = useMemo(() => {
@@ -82,10 +95,22 @@ export default function MapContainer(props: MapContainerProps) {
     }
   }, [map]);
 
+  // Retrieves the scenarios published by the spine for its Gold layers
+  useEffect(() => {
+    if (props.spineURL) {
+      getSpineScenarios(props.spineURL).then(setSpineScenarios);
+    }
+  }, [props.spineURL]);
+
   // Retrieves data settings for specified scenario from the server, else, defaults to the local file
   useEffect(() => {
     if (!showScenarioSelector) {
       setDataStore(null); // Always reset data when traversing states
+      // Points any spine-backed sources at the selected spine scenario
+      const withSpineSources = (settings: JsonObject): JsonObject =>
+        props.spineURL
+          ? resolveSpineSources(settings, props.spineURL, spineScenario)
+          : settings;
       let mapDataStore: DataStore;
       // If there are any scenarios, the corresponding data settings should be fetched from the server
       if (selectedScenarioID) {
@@ -111,7 +136,7 @@ export default function MapContainer(props: MapContainerProps) {
               dimensionValue
             );
             mapDataStore = parseMapDataSettings(
-              JSON.parse(dataString),
+              withSpineSources(JSON.parse(dataString)),
               mapSettings?.type
             );
             setDataStore(mapDataStore);
@@ -122,7 +147,7 @@ export default function MapContainer(props: MapContainerProps) {
       } else {
         // By default, the data settings are retrieved locally
         mapDataStore = parseMapDataSettings(
-          JSON.parse(props.data),
+          withSpineSources(JSON.parse(props.data)),
           mapSettings?.type
         );
         setDataStore(mapDataStore);
@@ -135,6 +160,8 @@ export default function MapContainer(props: MapContainerProps) {
     selectedScenarioID,
     showScenarioSelector,
     dimensionSliderValue,
+    props.spineURL,
+    spineScenario,
   ]);
 
   // Populates the map after it has loaded and scenario selection is not required
@@ -238,6 +265,7 @@ export default function MapContainer(props: MapContainerProps) {
             mapSettings={mapSettings}
             toggleScenarioSelection={setShowScenarioSelector}
             hasScenario={!!selectedScenarioID}
+            spineScenarios={spineScenarios}
           />
 
           {/* Map information panel */}

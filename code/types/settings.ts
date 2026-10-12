@@ -29,7 +29,7 @@ export type UISettings = {
   },
   links?: NavBarItemSettings[],
   resources?: {
-    [key: 'scenario' | 'registry' | 'dashboard' | "billing" | string]: {
+    [key: 'scenario' | 'spine' | 'registry' | 'dashboard' | "billing" | string]: {
       url?: string;
       data?: string;
       settings?: string;
